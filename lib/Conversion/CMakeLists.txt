@@ -26,4 +26,6 @@ LINK_COMPONENTS
 Core
 
 LINK_LIBS PUBLIC
+TorchMLIRTorchDialect
+TorchMLIRTorchConversionDialect
 )

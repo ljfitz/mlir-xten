@@ -18,3 +18,4 @@ add_mlir_dialect_library(XTenNNDialect
   MLIRTransforms
   XTenNNInterfaces
 )
+mlir_xten_target_includes(XTenNNDialect)

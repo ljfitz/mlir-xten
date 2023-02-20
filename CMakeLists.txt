@@ -100,6 +100,26 @@ link_directories(${PROJECT_BINARY_DIR}/../aie/lib/)
 
 add_definitions(${LLVM_DEFINITIONS})
 
+set(MLIR_XTEN_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR})
+set(MLIR_XTEN_BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR})
+
+function(mlir_xten_target_includes target)
+  set(_dirs
+    $<BUILD_INTERFACE:${MLIR_INCLUDE_DIRS}>
+    $<BUILD_INTERFACE:${MLIR_XTEN_SOURCE_DIR}/include>
+    $<BUILD_INTERFACE:${MLIR_XTEN_BINARY_DIR}/include>
+  )
+  # In LLVM parlance, the actual target may just be an interface and may not
+  # be responsible for actually compiling anything. The corresponding obj.
+  # target, when present, is just used for compilation and does not
+  # contribute to the interface properties.
+  # TODO: Normalize this upstream.
+  target_include_directories(${target} PUBLIC ${_dirs})
+  if(TARGET obj.${target})
+    target_include_directories(obj.${target} PRIVATE ${_dirs})
+  endif()
+endfunction()
+
 add_custom_target(check-all)
 
 # Make sure we build the docs

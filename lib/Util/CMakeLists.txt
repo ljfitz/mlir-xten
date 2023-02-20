@@ -12,4 +12,5 @@ add_mlir_library(XTenUtil
   MLIRIR
   MLIRPass
   MLIRTransforms
+  TorchMLIRTorchDialect
 )

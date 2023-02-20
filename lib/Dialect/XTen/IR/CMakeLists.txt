@@ -5,7 +5,7 @@
 #
 # (c) Copyright 2021 Xilinx Inc.
 
-add_mlir_library(XTenDialect
+add_mlir_dialect_library(XTenDialect
   XTenDialect.cpp
   XTenOps.cpp
   XTenOpWrapper.cpp
@@ -18,4 +18,6 @@ add_mlir_library(XTenDialect
   MLIRIR
   MLIRPass
   MLIRTransforms
+  TorchMLIRTorchDialect
 )
+mlir_xten_target_includes(XTenDialect)

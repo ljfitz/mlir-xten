@@ -17,7 +17,9 @@ add_mlir_library(XTenTransformPasses
   DEPENDS
   MLIRXTenOpsIncGen
   XTenTransformIncGen
+  TorchMLIRTorchDialect
 
   LINK_LIBS
   XTenDialect
-  )
+  TorchMLIRTorchDialect
+)
