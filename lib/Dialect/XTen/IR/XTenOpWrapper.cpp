@@ -24,9 +24,7 @@ namespace xten {
 
 AbsOpWrapper::~AbsOpWrapper() {}
 
-Conv2dOpWrapper::Conv2dOpWrapper(Conv2dOp c) {
-  conv = c;
-}
+Conv2dOpWrapper::Conv2dOpWrapper(Conv2dOp c) { conv = c; }
 
 Conv2dOpWrapper::~Conv2dOpWrapper() {}
 
@@ -34,25 +32,17 @@ Operation *Conv2dOpWrapper::getUnderlyingOperation() {
   return conv.getOperation();
 }
 
-Value Conv2dOpWrapper::getWeights() {
-  return this->conv.getWeight();
-}
+Value Conv2dOpWrapper::getWeights() { return this->conv.getWeight(); }
 
-ArrayRef<Value> Conv2dOpWrapper::getBN() {
-  return ArrayRef<Value>();
-}
+ArrayRef<Value> Conv2dOpWrapper::getBN() { return ArrayRef<Value>(); }
 
-Optional<Value> Conv2dOpWrapper::getBiases() {
+std::optional<Value> Conv2dOpWrapper::getBiases() {
   return this->conv.getBias();
 }
 
-Value Conv2dOpWrapper::getInput() {
-  return this->conv.getInput();
-}
+Value Conv2dOpWrapper::getInput() { return this->conv.getInput(); }
 
-Value Conv2dOpWrapper::getPartialInput() {
-  return Value();
-}
+Value Conv2dOpWrapper::getPartialInput() { return Value(); }
 
 unsigned int Conv2dOpWrapper::getF0() {
   return this->conv.getWeight()
@@ -76,23 +66,16 @@ unsigned int Conv2dOpWrapper::getStride() {
   return stride[0];
 }
 
-bool Conv2dOpWrapper::hasWeights() {
-  return true;
-}
+bool Conv2dOpWrapper::hasWeights() { return true; }
 
-bool Conv2dOpWrapper::hasBias() {
-  return this->getBiases().has_value();
-}
+bool Conv2dOpWrapper::hasBias() { return this->getBiases().has_value(); }
 
-bool Conv2dOpWrapper::hasBN() {
-  return false;
-}
+bool Conv2dOpWrapper::hasBN() { return false; }
 
 bool Conv2dOpWrapper::isDepthWise() {
-  llvm::APInt intT = this->conv.getGroups()
-                         .getDefiningOp<mlir::torch::Torch::ConstantIntOp>()
-                         .getValue();
-  uint64_t groups = intT.getSExtValue();
+  uint64_t groups = this->conv.getGroups()
+                        .getDefiningOp<mlir::torch::Torch::ConstantIntOp>()
+                        .getValue();
 
   mlir::torch::Torch::BaseTensorType aShape =
       this->conv.getInput()
@@ -114,11 +97,11 @@ double Conv2dOpWrapper::getKernelEfficiency() {
 }
 
 Operation *Conv2dOpWrapper::buildOp(OpBuilder &builder, TypeRange returnType,
-                                    Value input, llvm::Optional<Value> weight,
-                                    llvm::Optional<Value> bias,
-                                    llvm::Optional<Value> partialIn,
+                                    Value input, std::optional<Value> weight,
+                                    std::optional<Value> bias,
+                                    std::optional<Value> partialIn,
                                     bool firstInPartialChain,
-                                    llvm::Optional<ArrayRef<Value>> bn) {
+                                    std::optional<ArrayRef<Value>> bn) {
   assert(weight.has_value());
 
   if (this->hasBias()) {
@@ -151,7 +134,7 @@ Operation *Conv2dOpWrapper::buildOp(OpBuilder &builder, TypeRange returnType,
 }
 
 Operation *Conv2dOpWrapper::wCopy(OpBuilder &builder, unsigned int into,
-                                  llvm::Optional<TypeRange> resTypes) {
+                                  std::optional<TypeRange> resTypes) {
   Operation *op;
 
   if (resTypes.has_value()) {
@@ -179,9 +162,7 @@ Operation *Conv2dOpWrapper::wCopy(OpBuilder &builder, unsigned int into,
   return op;
 }
 
-PartialConv2dOpWrapper::PartialConv2dOpWrapper(PartialConv2dOp c) {
-  conv = c;
-}
+PartialConv2dOpWrapper::PartialConv2dOpWrapper(PartialConv2dOp c) { conv = c; }
 
 PartialConv2dOpWrapper::~PartialConv2dOpWrapper() {}
 
@@ -189,21 +170,15 @@ Operation *PartialConv2dOpWrapper::getUnderlyingOperation() {
   return conv.getOperation();
 }
 
-Value PartialConv2dOpWrapper::getWeights() {
-  return this->conv.getWeight();
-}
+Value PartialConv2dOpWrapper::getWeights() { return this->conv.getWeight(); }
 
-ArrayRef<Value> PartialConv2dOpWrapper::getBN() {
-  return ArrayRef<Value>();
-}
+ArrayRef<Value> PartialConv2dOpWrapper::getBN() { return ArrayRef<Value>(); }
 
-Optional<Value> PartialConv2dOpWrapper::getBiases() {
+std::optional<Value> PartialConv2dOpWrapper::getBiases() {
   return this->conv.getBias();
 }
 
-Value PartialConv2dOpWrapper::getInput() {
-  return this->conv.getInput();
-}
+Value PartialConv2dOpWrapper::getInput() { return this->conv.getInput(); }
 
 Value PartialConv2dOpWrapper::getPartialInput() {
   return this->conv.getPartialIn();
@@ -230,17 +205,11 @@ unsigned int PartialConv2dOpWrapper::getStride() {
   return stride[0];
 }
 
-bool PartialConv2dOpWrapper::hasWeights() {
-  return true;
-}
+bool PartialConv2dOpWrapper::hasWeights() { return true; }
 
-bool PartialConv2dOpWrapper::hasBias() {
-  return this->getBiases().has_value();
-}
+bool PartialConv2dOpWrapper::hasBias() { return this->getBiases().has_value(); }
 
-bool PartialConv2dOpWrapper::hasBN() {
-  return false;
-}
+bool PartialConv2dOpWrapper::hasBN() { return false; }
 
 bool PartialConv2dOpWrapper::isDepthWise() {
   unsigned int groups = this->conv.getGroups()
@@ -267,11 +236,11 @@ double PartialConv2dOpWrapper::getKernelEfficiency() {
 
 Operation *PartialConv2dOpWrapper::buildOp(OpBuilder &builder,
                                            TypeRange returnType, Value input,
-                                           llvm::Optional<Value> weight,
-                                           llvm::Optional<Value> bias,
-                                           llvm::Optional<Value> partialIn,
+                                           std::optional<Value> weight,
+                                           std::optional<Value> bias,
+                                           std::optional<Value> partialIn,
                                            bool firstInPartialChain,
-                                           llvm::Optional<ArrayRef<Value>> bn) {
+                                           std::optional<ArrayRef<Value>> bn) {
   assert(weight.has_value());
   if (this->hasBias()) {
     assert(bias.has_value());
@@ -300,7 +269,7 @@ Operation *PartialConv2dOpWrapper::buildOp(OpBuilder &builder,
 }
 
 Operation *PartialConv2dOpWrapper::wCopy(OpBuilder &builder, unsigned int into,
-                                         llvm::Optional<TypeRange> resTypes) {
+                                         std::optional<TypeRange> resTypes) {
   Operation *op;
 
   if (resTypes.has_value()) {
@@ -329,9 +298,7 @@ Operation *PartialConv2dOpWrapper::wCopy(OpBuilder &builder, unsigned int into,
   return op;
 }
 
-Conv2dReLUOpWrapper::Conv2dReLUOpWrapper(Conv2dReLUOp c) {
-  conv = c;
-}
+Conv2dReLUOpWrapper::Conv2dReLUOpWrapper(Conv2dReLUOp c) { conv = c; }
 
 Conv2dReLUOpWrapper::~Conv2dReLUOpWrapper() {}
 
@@ -339,25 +306,17 @@ Operation *Conv2dReLUOpWrapper::getUnderlyingOperation() {
   return conv.getOperation();
 }
 
-Value Conv2dReLUOpWrapper::getWeights() {
-  return this->conv.getWeight();
-}
+Value Conv2dReLUOpWrapper::getWeights() { return this->conv.getWeight(); }
 
-ArrayRef<Value> Conv2dReLUOpWrapper::getBN() {
-  return ArrayRef<Value>();
-}
+ArrayRef<Value> Conv2dReLUOpWrapper::getBN() { return ArrayRef<Value>(); }
 
-Optional<Value> Conv2dReLUOpWrapper::getBiases() {
+std::optional<Value> Conv2dReLUOpWrapper::getBiases() {
   return this->conv.getBias();
 }
 
-Value Conv2dReLUOpWrapper::getInput() {
-  return this->conv.getInput();
-}
+Value Conv2dReLUOpWrapper::getInput() { return this->conv.getInput(); }
 
-Value Conv2dReLUOpWrapper::getPartialInput() {
-  return Value();
-}
+Value Conv2dReLUOpWrapper::getPartialInput() { return Value(); }
 
 unsigned int Conv2dReLUOpWrapper::getF0() {
   return this->conv.getWeight()
@@ -381,17 +340,11 @@ unsigned int Conv2dReLUOpWrapper::getStride() {
   return stride[0];
 }
 
-bool Conv2dReLUOpWrapper::hasWeights() {
-  return true;
-}
+bool Conv2dReLUOpWrapper::hasWeights() { return true; }
 
-bool Conv2dReLUOpWrapper::hasBias() {
-  return this->getBiases().has_value();
-}
+bool Conv2dReLUOpWrapper::hasBias() { return this->getBiases().has_value(); }
 
-bool Conv2dReLUOpWrapper::hasBN() {
-  return false;
-}
+bool Conv2dReLUOpWrapper::hasBN() { return false; }
 
 bool Conv2dReLUOpWrapper::isDepthWise() {
   unsigned int groups = this->conv.getGroups()
@@ -418,11 +371,11 @@ double Conv2dReLUOpWrapper::getKernelEfficiency() {
 
 Operation *Conv2dReLUOpWrapper::buildOp(OpBuilder &builder,
                                         TypeRange returnType, Value input,
-                                        llvm::Optional<Value> weight,
-                                        llvm::Optional<Value> bias,
-                                        llvm::Optional<Value> partialIn,
+                                        std::optional<Value> weight,
+                                        std::optional<Value> bias,
+                                        std::optional<Value> partialIn,
                                         bool firstInPartialChain,
-                                        llvm::Optional<ArrayRef<Value>> bn) {
+                                        std::optional<ArrayRef<Value>> bn) {
   assert(weight.has_value());
 
   if (this->hasBias()) {
@@ -453,7 +406,7 @@ Operation *Conv2dReLUOpWrapper::buildOp(OpBuilder &builder,
 }
 
 Operation *Conv2dReLUOpWrapper::wCopy(OpBuilder &builder, unsigned int into,
-                                      llvm::Optional<TypeRange> resTypes) {
+                                      std::optional<TypeRange> resTypes) {
   Operation *op;
 
   if (resTypes.has_value()) {
@@ -498,13 +451,11 @@ ArrayRef<Value> PartialConv2dReLUOpWrapper::getBN() {
   return ArrayRef<Value>();
 }
 
-Optional<Value> PartialConv2dReLUOpWrapper::getBiases() {
+std::optional<Value> PartialConv2dReLUOpWrapper::getBiases() {
   return this->conv.getBias();
 }
 
-Value PartialConv2dReLUOpWrapper::getInput() {
-  return this->conv.getInput();
-}
+Value PartialConv2dReLUOpWrapper::getInput() { return this->conv.getInput(); }
 
 Value PartialConv2dReLUOpWrapper::getPartialInput() {
   return this->conv.getPartialIn();
@@ -532,17 +483,13 @@ unsigned int PartialConv2dReLUOpWrapper::getStride() {
   return stride[0];
 }
 
-bool PartialConv2dReLUOpWrapper::hasWeights() {
-  return true;
-}
+bool PartialConv2dReLUOpWrapper::hasWeights() { return true; }
 
 bool PartialConv2dReLUOpWrapper::hasBias() {
   return this->getBiases().has_value();
 }
 
-bool PartialConv2dReLUOpWrapper::hasBN() {
-  return false;
-}
+bool PartialConv2dReLUOpWrapper::hasBN() { return false; }
 
 bool PartialConv2dReLUOpWrapper::isDepthWise() {
   unsigned int groups = this->conv.getGroups()
@@ -569,9 +516,9 @@ double PartialConv2dReLUOpWrapper::getKernelEfficiency() {
 
 Operation *PartialConv2dReLUOpWrapper::buildOp(
     OpBuilder &builder, TypeRange returnType, Value input,
-    llvm::Optional<Value> weight, llvm::Optional<Value> bias,
-    llvm::Optional<Value> partialIn, bool firstInPartialChain,
-    llvm::Optional<ArrayRef<Value>> bn) {
+    std::optional<Value> weight, std::optional<Value> bias,
+    std::optional<Value> partialIn, bool firstInPartialChain,
+    std::optional<ArrayRef<Value>> bn) {
   assert(weight.has_value());
 
   if (this->hasBias()) {
@@ -600,7 +547,7 @@ Operation *PartialConv2dReLUOpWrapper::buildOp(
 
 Operation *
 PartialConv2dReLUOpWrapper::wCopy(OpBuilder &builder, unsigned int into,
-                                  llvm::Optional<TypeRange> resTypes) {
+                                  std::optional<TypeRange> resTypes) {
   Operation *op;
 
   if (resTypes.has_value()) {
@@ -650,7 +597,7 @@ ArrayRef<Value> PartialConv2dBatchNormReLUOpWrapper::getBN() {
                           this->conv.getRunningVar()});
 }
 
-Optional<Value> PartialConv2dBatchNormReLUOpWrapper::getBiases() {
+std::optional<Value> PartialConv2dBatchNormReLUOpWrapper::getBiases() {
   return this->conv.getBias();
 }
 
@@ -684,17 +631,13 @@ unsigned int PartialConv2dBatchNormReLUOpWrapper::getStride() {
   return stride[0];
 }
 
-bool PartialConv2dBatchNormReLUOpWrapper::hasWeights() {
-  return true;
-}
+bool PartialConv2dBatchNormReLUOpWrapper::hasWeights() { return true; }
 
 bool PartialConv2dBatchNormReLUOpWrapper::hasBias() {
   return this->getBiases().has_value();
 }
 
-bool PartialConv2dBatchNormReLUOpWrapper::hasBN() {
-  return true;
-}
+bool PartialConv2dBatchNormReLUOpWrapper::hasBN() { return true; }
 
 bool PartialConv2dBatchNormReLUOpWrapper::isDepthWise() {
   unsigned int groups = this->conv.getGroups()
@@ -721,9 +664,9 @@ double PartialConv2dBatchNormReLUOpWrapper::getKernelEfficiency() {
 
 Operation *PartialConv2dBatchNormReLUOpWrapper::buildOp(
     OpBuilder &builder, TypeRange returnType, Value input,
-    llvm::Optional<Value> weight, llvm::Optional<Value> bias,
-    llvm::Optional<Value> partialIn, bool firstInPartialChain,
-    llvm::Optional<ArrayRef<Value>> bn) {
+    std::optional<Value> weight, std::optional<Value> bias,
+    std::optional<Value> partialIn, bool firstInPartialChain,
+    std::optional<ArrayRef<Value>> bn) {
   assert(weight.has_value());
   assert(bn.has_value());
 
@@ -755,7 +698,7 @@ Operation *PartialConv2dBatchNormReLUOpWrapper::buildOp(
 }
 
 Operation *PartialConv2dBatchNormReLUOpWrapper::wCopy(
-    OpBuilder &builder, unsigned int into, llvm::Optional<TypeRange> resTypes) {
+    OpBuilder &builder, unsigned int into, std::optional<TypeRange> resTypes) {
   Operation *op;
   if (resTypes.has_value()) {
     op = builder.create<PartialConv2dBatchNormReLUOp>(
@@ -810,17 +753,13 @@ ArrayRef<Value> Conv2dBatchNormReLUOpWrapper::getBN() {
                           this->conv.getRunningVar()});
 }
 
-Optional<Value> Conv2dBatchNormReLUOpWrapper::getBiases() {
+std::optional<Value> Conv2dBatchNormReLUOpWrapper::getBiases() {
   return this->conv.getBias();
 }
 
-Value Conv2dBatchNormReLUOpWrapper::getInput() {
-  return this->conv.getInput();
-}
+Value Conv2dBatchNormReLUOpWrapper::getInput() { return this->conv.getInput(); }
 
-Value Conv2dBatchNormReLUOpWrapper::getPartialInput() {
-  return Value();
-}
+Value Conv2dBatchNormReLUOpWrapper::getPartialInput() { return Value(); }
 
 unsigned int Conv2dBatchNormReLUOpWrapper::getF0() {
   return this->conv.getWeight()
@@ -844,17 +783,13 @@ unsigned int Conv2dBatchNormReLUOpWrapper::getStride() {
   return stride[0];
 }
 
-bool Conv2dBatchNormReLUOpWrapper::hasWeights() {
-  return true;
-}
+bool Conv2dBatchNormReLUOpWrapper::hasWeights() { return true; }
 
 bool Conv2dBatchNormReLUOpWrapper::hasBias() {
   return this->getBiases().has_value();
 }
 
-bool Conv2dBatchNormReLUOpWrapper::hasBN() {
-  return true;
-}
+bool Conv2dBatchNormReLUOpWrapper::hasBN() { return true; }
 
 bool Conv2dBatchNormReLUOpWrapper::isDepthWise() {
   unsigned int groups = this->conv.getGroups()
@@ -881,9 +816,9 @@ double Conv2dBatchNormReLUOpWrapper::getKernelEfficiency() {
 
 Operation *Conv2dBatchNormReLUOpWrapper::buildOp(
     OpBuilder &builder, TypeRange returnType, Value input,
-    llvm::Optional<Value> weight, llvm::Optional<Value> bias,
-    llvm::Optional<Value> partialIn, bool firstInPartialChain,
-    llvm::Optional<ArrayRef<Value>> bn) {
+    std::optional<Value> weight, std::optional<Value> bias,
+    std::optional<Value> partialIn, bool firstInPartialChain,
+    std::optional<ArrayRef<Value>> bn) {
   assert(weight.has_value());
   assert(bn.has_value());
 
@@ -921,7 +856,7 @@ Operation *Conv2dBatchNormReLUOpWrapper::buildOp(
 
 Operation *
 Conv2dBatchNormReLUOpWrapper::wCopy(OpBuilder &builder, unsigned int into,
-                                    llvm::Optional<TypeRange> resTypes) {
+                                    std::optional<TypeRange> resTypes) {
   Operation *op;
 
   if (resTypes.has_value()) {
@@ -966,12 +901,10 @@ Operation *MaxPool2dOpWrapper::getUnderlyingOperation() {
   return maxpool.getOperation();
 }
 
-Value MaxPool2dOpWrapper::getWeights() {
-  return Value();
-}
+Value MaxPool2dOpWrapper::getWeights() { return Value(); }
 
-Optional<Value> MaxPool2dOpWrapper::getBiases() {
-  return Optional<Value>{};
+std::optional<Value> MaxPool2dOpWrapper::getBiases() {
+  return std::optional<Value>{};
 }
 
 unsigned int MaxPool2dOpWrapper::getF0() {
@@ -998,45 +931,28 @@ unsigned int MaxPool2dOpWrapper::getStride() {
   return stride[0];
 }
 
-Value MaxPool2dOpWrapper::getInput() {
-  return this->maxpool.getSelf();
-}
+Value MaxPool2dOpWrapper::getInput() { return this->maxpool.getSelf(); }
 
-Value MaxPool2dOpWrapper::getPartialInput() {
-  return Value();
-}
+Value MaxPool2dOpWrapper::getPartialInput() { return Value(); }
 
-ArrayRef<Value> MaxPool2dOpWrapper::getBN() {
-  return ArrayRef<Value>();
-}
+ArrayRef<Value> MaxPool2dOpWrapper::getBN() { return ArrayRef<Value>(); }
 
-bool MaxPool2dOpWrapper::hasWeights() {
-  return false;
-}
+bool MaxPool2dOpWrapper::hasWeights() { return false; }
 
-bool MaxPool2dOpWrapper::hasBias() {
-  return false;
-}
+bool MaxPool2dOpWrapper::hasBias() { return false; }
 
-bool MaxPool2dOpWrapper::isDepthWise() {
-  return true;
-}
+bool MaxPool2dOpWrapper::isDepthWise() { return true; }
 
-bool MaxPool2dOpWrapper::hasBN() {
-  return false;
-}
+bool MaxPool2dOpWrapper::hasBN() { return false; }
 
-double MaxPool2dOpWrapper::getKernelEfficiency() {
-  return 0.25;
-}
+double MaxPool2dOpWrapper::getKernelEfficiency() { return 0.25; }
 
 Operation *MaxPool2dOpWrapper::buildOp(OpBuilder &builder, TypeRange returnType,
-                                       Value input,
-                                       llvm::Optional<Value> weight,
-                                       llvm::Optional<Value> bias,
-                                       llvm::Optional<Value> partialIn,
+                                       Value input, std::optional<Value> weight,
+                                       std::optional<Value> bias,
+                                       std::optional<Value> partialIn,
                                        bool firstInPartialChain,
-                                       llvm::Optional<ArrayRef<Value>> bn) {
+                                       std::optional<ArrayRef<Value>> bn) {
   assert(!weight.has_value());
   assert(!bias.has_value());
   assert(!firstInPartialChain);
@@ -1045,22 +961,22 @@ Operation *MaxPool2dOpWrapper::buildOp(OpBuilder &builder, TypeRange returnType,
   Operation *op = this->getUnderlyingOperation();
   Operation *nOp = builder.create<Torch::AtenMaxPool2dOp>(
       builder.getUnknownLoc(), returnType, input, this->maxpool.getKernelSize(),
-      this->maxpool.getStride(), this->maxpool.getPadding(), this->maxpool.getDilation(),
-      this->maxpool.getCeilMode());
+      this->maxpool.getStride(), this->maxpool.getPadding(),
+      this->maxpool.getDilation(), this->maxpool.getCeilMode());
 
   nOp->setAttrs(op->getAttrs());
   return nOp;
 }
 
 Operation *MaxPool2dOpWrapper::wCopy(OpBuilder &builder, unsigned int into,
-                                     llvm::Optional<TypeRange> typeRes) {
+                                     std::optional<TypeRange> typeRes) {
   assert(!typeRes.has_value());
 
   Operation *op = builder.create<Torch::AtenMaxPool2dOp>(
       builder.getUnknownLoc(), this->getUnderlyingOperation()->getResultTypes(),
-      this->getInput(), this->maxpool.getKernelSize(), this->maxpool.getStride(),
-      this->maxpool.getPadding(), this->maxpool.getDilation(),
-      this->maxpool.getCeilMode());
+      this->getInput(), this->maxpool.getKernelSize(),
+      this->maxpool.getStride(), this->maxpool.getPadding(),
+      this->maxpool.getDilation(), this->maxpool.getCeilMode());
 
   op->setAttrs(this->getUnderlyingOperation()->getAttrs());
 

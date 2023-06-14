@@ -68,7 +68,7 @@ struct OpInfo {
   /// The feature map results this node.
   SmallVector<Value> const results;
   /// The value that will share memory with the result during execution, if any.
-  Optional<Value> const sharesResultMemory = {};
+  std::optional<Value> const sharesResultMemory = {};
   /// The consumers of any results. Note: this is filled progressively while
   /// collecting the operations.
   SmallVector<Operation *> consumers;
@@ -166,7 +166,7 @@ SmallVector<Value> getSubgraphIFMs(Operation *op) {
   return {};
 }
 
-Optional<Value> getSubgraphOFM(Operation *op) {
+std::optional<Value> getSubgraphOFM(Operation *op) {
 
   // Handle OfmShare attribute
   if (auto ofmShare = op->getAttrOfType<mlir::IntegerAttr>("OfmShare")) {
@@ -176,7 +176,7 @@ Optional<Value> getSubgraphOFM(Operation *op) {
 }
 
 /// Returns the operand that will share memory with the result.
-Optional<Value> sharesMemoryWithResult(Operation *op) {
+std::optional<Value> sharesMemoryWithResult(Operation *op) {
 
   if (isInCoreChain(op))
     return getSubgraphOFM(op);
@@ -210,7 +210,8 @@ size_t getSize(Value val) {
   assert(isa<ShapedType>(type));
 
   // Get size in bytes
-  return cast<ShapedType>(type).getSizeInBits() / 8;
+  auto newType = cast<ShapedType>(type);
+  return newType.getNumElements() * newType.getElementTypeBitWidth();
 }
 
 /// Debugging support - returns a simple name for an op.
@@ -282,7 +283,8 @@ public:
       } else {
         fmResults = SmallVector<Value>(currFn.getBody().front().getArguments());
       }
-      Optional<Value> const sharesResultMemory = sharesMemoryWithResult(defOp);
+      std::optional<Value> const sharesResultMemory =
+          sharesMemoryWithResult(defOp);
       OpInfo info = {.op = defOp,
                      .operands = *fmOperands,
                      .results = fmResults,
@@ -510,13 +512,9 @@ private:
     return inOrderOpInfo;
   }
 
-  void dumpAsDOT() {
-    dumpAsDOT(llvm::errs());
-  }
+  void dumpAsDOT() { dumpAsDOT(llvm::errs()); }
 
-  void dumpAsDOTInOrder() {
-    dumpAsDOT(llvm::errs(), true);
-  }
+  void dumpAsDOTInOrder() { dumpAsDOT(llvm::errs(), true); }
 
   void dumpAsDOT(raw_ostream &stream, bool printOrder = false) {
 

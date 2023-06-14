@@ -120,12 +120,6 @@ add_definitions(${LLVM_DEFINITIONS})
 # Collects all lit tests between the begin and end function
 umbrella_lit_testsuite_begin(check-xten-all)
 
-# Make sure we build the docs
-if(NOT CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
-add_custom_target(docs ALL)
-add_dependencies(docs mlir-doc)
-endif()
-
 add_subdirectory(include)
 add_subdirectory(lib)
 add_subdirectory(tools)

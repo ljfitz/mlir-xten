@@ -44,44 +44,37 @@ using namespace mlir::torch;
 
 namespace {
 
-template <class Op>
-llvm::Optional<Value> getAlpha(Op &reluOp) {
+template <class Op> std::optional<Value> getAlpha(Op &reluOp) {
   return reluOp.getAlpha();
 }
 
-template <>
-llvm::Optional<Value> getAlpha(Torch::AtenReluOp &reluOp) {
+template <> std::optional<Value> getAlpha(Torch::AtenReluOp &reluOp) {
+  return {};
+}
+
+template <> std::optional<Value> getAlpha(xten::Conv2dReLUOp &reluOp) {
+  return {};
+}
+
+template <> std::optional<Value> getAlpha(xten::Conv2dReLUMaxPoolOp &reluOp) {
   return {};
 }
 
 template <>
-llvm::Optional<Value> getAlpha(xten::Conv2dReLUOp &reluOp) {
+std::optional<Value> getAlpha(xten::Conv2dReLUPadMaxPoolOp &reluOp) {
   return {};
 }
 
-template <>
-llvm::Optional<Value> getAlpha(xten::Conv2dReLUMaxPoolOp &reluOp) {
+template <> std::optional<Value> getAlpha(xten::Conv2dTensorAddReLUOp &reluOp) {
   return {};
 }
 
-template <>
-llvm::Optional<Value> getAlpha(xten::Conv2dReLUPadMaxPoolOp &reluOp) {
-  return {};
-}
-
-template <>
-llvm::Optional<Value> getAlpha(xten::Conv2dTensorAddReLUOp &reluOp) {
-  return {};
-}
-
-template <>
-llvm::Optional<Value> getAlpha(xten::LinearReluOp &reluOp) {
+template <> std::optional<Value> getAlpha(xten::LinearReluOp &reluOp) {
   return {};
 }
 
 // fetch input. Specialize if the method is named differently.
-template <class Op>
-Value getInput(Op op) {
+template <class Op> Value getInput(Op op) {
   return *op.getODSOperands(0).begin();
 }
 
@@ -231,12 +224,9 @@ public:
     return JsonPropertiesBuilder(propertiesArray, typeStr, numSubOps++);
   }
 
-  bool isFused() {
-    return unfusedOpId >= 0;
-  }
+  bool isFused() { return unfusedOpId >= 0; }
 
-  template <class Op>
-  void appendStorageAttr(Op &op, uint64_t bytes) {
+  template <class Op> void appendStorageAttr(Op &op, uint64_t bytes) {
     if (!isFused()) {
       Value input = getInput(op);
       Value output = ((Operation *)op)->getResult(0);
@@ -416,53 +406,43 @@ private:
     //  fillPropertiesObject({"Storage.Bytes", storage_str}, propertiesArray);
   }
 
-  template <class ConvOp>
-  inline Value getWeight(ConvOp op) {
+  template <class ConvOp> inline Value getWeight(ConvOp op) {
     return op.getWeight();
   }
 
-  template <>
-  inline Value getWeight(Torch::AtenConvolutionOp op) {
+  template <> inline Value getWeight(Torch::AtenConvolutionOp op) {
     return op.getWeight();
   }
 
-  template <class ConvOp>
-  inline Value getBias(ConvOp op) {
+  template <class ConvOp> inline Value getBias(ConvOp op) {
     return op.getBias();
   }
 
-  template <>
-  inline Value getBias(Torch::AtenConvolutionOp op) {
+  template <> inline Value getBias(Torch::AtenConvolutionOp op) {
     return op.getBias();
   }
 
-  template <class ConvOp>
-  inline Value getConvPadding(ConvOp op) {
+  template <class ConvOp> inline Value getConvPadding(ConvOp op) {
     return op.getPadding();
   }
 
-  template <>
-  inline Value getConvPadding(Torch::AtenConvolutionOp op) {
+  template <> inline Value getConvPadding(Torch::AtenConvolutionOp op) {
     return op.getPadding();
   }
 
-  template <class ConvOp>
-  inline Value getConvStride(ConvOp op) {
+  template <class ConvOp> inline Value getConvStride(ConvOp op) {
     return op.getStride();
   }
 
-  template <>
-  inline Value getConvStride(Torch::AtenConvolutionOp op) {
+  template <> inline Value getConvStride(Torch::AtenConvolutionOp op) {
     return op.getStride();
   }
 
-  template <class ConvOp>
-  inline Value getDilation(ConvOp op) {
+  template <class ConvOp> inline Value getDilation(ConvOp op) {
     return op.getDilation();
   }
 
-  template <>
-  inline Value getDilation(Torch::AtenConvolutionOp op) {
+  template <> inline Value getDilation(Torch::AtenConvolutionOp op) {
     return op.getDilation();
   }
 
@@ -494,33 +474,27 @@ private:
     return bytes;
   }
 
-  template <class MaxpoolOp>
-  Value getKernelSize(MaxpoolOp &maxPoolOp) {
+  template <class MaxpoolOp> Value getKernelSize(MaxpoolOp &maxPoolOp) {
     return maxPoolOp.getMpKernelSize();
   }
 
-  template <class MaxpoolOp>
-  Value getStride(MaxpoolOp &maxPoolOp) {
+  template <class MaxpoolOp> Value getStride(MaxpoolOp &maxPoolOp) {
     return maxPoolOp.getMpStride();
   }
 
-  template <class MaxpoolOp>
-  Value getPadding(MaxpoolOp &maxPoolOp) {
+  template <class MaxpoolOp> Value getPadding(MaxpoolOp &maxPoolOp) {
     return maxPoolOp.getMpPadding();
   }
 
-  template <>
-  Value getKernelSize(Torch::AtenMaxPool2dOp &maxPoolOp) {
+  template <> Value getKernelSize(Torch::AtenMaxPool2dOp &maxPoolOp) {
     return maxPoolOp.getKernelSize();
   }
 
-  template <>
-  Value getStride(Torch::AtenMaxPool2dOp &maxPoolOp) {
+  template <> Value getStride(Torch::AtenMaxPool2dOp &maxPoolOp) {
     return maxPoolOp.getStride();
   }
 
-  template <>
-  Value getPadding(Torch::AtenMaxPool2dOp &maxPoolOp) {
+  template <> Value getPadding(Torch::AtenMaxPool2dOp &maxPoolOp) {
     return maxPoolOp.getPadding();
   }
 
@@ -587,16 +561,13 @@ private:
     return xtenLinOp.getWeight();
   }
 
-  inline Value getBias(Torch::AtenLinearOp linOp) {
-    return linOp.getBias();
-  }
+  inline Value getBias(Torch::AtenLinearOp linOp) { return linOp.getBias(); }
 
-  inline Value getBias(xten::LinearOp xtenLinOp) {
-    return xtenLinOp.getBias();
-  }
+  inline Value getBias(xten::LinearOp xtenLinOp) { return xtenLinOp.getBias(); }
 
   template <typename LinearOpType>
-  uint64_t fillPropertiesLinearOp(LinearOpType &op, JsonPropertiesBuilder &&props) {
+  uint64_t fillPropertiesLinearOp(LinearOpType &op,
+                                  JsonPropertiesBuilder &&props) {
     auto bytes = 0;
     bytes +=
         props.appendTypeInfo("Attributes.Weights", getWeight(op).getType());
@@ -607,7 +578,7 @@ private:
 
   template <class Op>
   void fillPropertiesLinearActOp(Op &op, const char *actTypeStr,
-                              JsonPropertiesBuilder &&props) {
+                                 JsonPropertiesBuilder &&props) {
     uint64_t bytes = 0;
     bytes += fillPropertiesLinearOp(op, props.nextFusedOp("aten.linear"));
     bytes += fillPropertiesReLUOp(op, props.nextFusedOp(actTypeStr));
@@ -622,9 +593,7 @@ private:
     return xtenBnOp.getBnWeight();
   }
 
-  inline Value getBnBias(Torch::AtenBatchNormOp bnOp) {
-    return bnOp.getBias();
-  }
+  inline Value getBnBias(Torch::AtenBatchNormOp bnOp) { return bnOp.getBias(); }
 
   inline Value getBnBias(xten::Conv2dBatchNormReLUOp xtenBnOp) {
     return xtenBnOp.getBnBias();
@@ -646,9 +615,7 @@ private:
     return xtenBnOp.getRunningVar();
   }
 
-  inline Value getEps(Torch::AtenBatchNormOp bnOp) {
-    return bnOp.getEps();
-  }
+  inline Value getEps(Torch::AtenBatchNormOp bnOp) { return bnOp.getEps(); }
 
   inline Value getEps(xten::Conv2dBatchNormReLUOp xtenBnOp) {
     return xtenBnOp.getEps();

@@ -101,9 +101,9 @@ namespace xilinx {
                 }
 
                 mlir::torch::Torch::BaseTensorType ttype = breakShapeInto(initialShape, loc, into);
-
+                auto tensorType = RankedTensorType::get(ttype.getSizes(), ttype.getDtype());
                 for(uint64_t i = 0; i < into; i++) {
-                    DenseElementsAttr attr = DenseElementsAttr::get(ttype, vects.at(i));
+                    DenseElementsAttr attr = DenseElementsAttr::get(tensorType, vects.at(i));
                     Operation* cst = builder.create<mlir::arith::ConstantOp>(builder.getUnknownLoc(), ttype, attr);
                     ops.push_back(cst->getResult(0));
                 }
@@ -165,9 +165,9 @@ namespace xilinx {
                 }
 
                 mlir::torch::Torch::BaseTensorType ttype = breakShapeInto(initialShape, loc, into);
-
+                auto tensorType = RankedTensorType::get(ttype.getSizes(), ttype.getDtype());
                 for(uint64_t i = 0; i < into; i++) {
-                    DenseElementsAttr attr = DenseElementsAttr::get(ttype, vects.at(i));
+                    DenseElementsAttr attr = DenseElementsAttr::get(tensorType, vects.at(i));
                     Operation* cst = builder.create<mlir::arith::ConstantOp>(builder.getUnknownLoc(), ttype, attr);
                     ops.push_back(cst->getResult(0));
                 }
@@ -212,9 +212,9 @@ namespace xilinx {
                 } else {
                     ttype = initialShape;
                 }
-
+                auto tensorType = RankedTensorType::get(ttype.getSizes(), ttype.getDtype());
                 for(uint64_t i = 0; i < into; i++) {
-                    DenseElementsAttr attr = DenseElementsAttr::get(ttype, vects.at(i));
+                    DenseElementsAttr attr = DenseElementsAttr::get(tensorType, vects.at(i));
                     Operation* cst = builder.create<mlir::arith::ConstantOp>(builder.getUnknownLoc(), ttype, attr);
                     ops.push_back(cst->getResult(0));
                 }

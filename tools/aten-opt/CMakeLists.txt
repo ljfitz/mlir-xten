@@ -22,6 +22,8 @@ set(LIBS
   XTenTransforms
   XTenUtil
   XTenNNDialect
+  XTenNNUtils
+  XtenNNTestPasses
   TorchMLIRInitAll
   TorchMLIRTMTensorPasses
   TorchMLIRTMTensorDialect

@@ -313,13 +313,13 @@ public:
     SmallVector<int64_t, 4> lbs(rank, 0);
     SmallVector<int64_t, 4> steps(rank, 1);
 
-    buildAffineLoopNest(
+    affine::buildAffineLoopNest(
         rewriter, loc, lbs, sizes, steps,
         [&](OpBuilder &builder, Location loc, ValueRange ivs) {
           SmallVector<Value, 4> indices;
           auto ident = AffineMap::getMultiDimIdentityMap(ivs.size(),
                                                          builder.getContext());
-          auto load = builder.create<AffineLoadOp>(loc, lhs, ident, ivs);
+          auto load = builder.create<affine::AffineLoadOp>(loc, lhs, ident, ivs);
           std::vector<uint64_t> index{};
           Value add = nullptr;
           if (isFloatOp) {
@@ -333,15 +333,15 @@ public:
             auto c =
                 cast<Torch::ConstantIntOp>(operands[1].getDefiningOp()).getValue();
             auto ty = rewriter.getIntegerType(32);
-            auto add_const = rewriter.getI32IntegerAttr(c.getZExtValue());
+            auto add_const = rewriter.getI32IntegerAttr(c);
             add = builder.create<mlir::arith::AddIOp>(loc, load, builder.create<mlir::arith::ConstantOp>(loc, ty, add_const));
           }
-          builder.create<AffineStoreOp>(loc, add, result, ident, ivs);
+          builder.create<affine::AffineStoreOp>(loc, add, result, ident, ivs);
         });
 
     for (auto it = Block::iterator(op), ie = rewriter.getInsertionPoint();
          it != ie; ++it) {
-      if (auto afo = dyn_cast<AffineForOp>(it))
+      if (auto afo = dyn_cast<affine::AffineForOp>(it))
         afo->setAttr("affine_opt_label",
                      StringAttr::get(op->getContext(), "affine_opt"));
     }
@@ -384,7 +384,7 @@ public:
     SmallVector<int64_t, 4> lbs(sizes.size(), 0);
     SmallVector<int64_t, 4> steps(sizes.size(), 1);
 
-    buildAffineLoopNest(
+    affine::buildAffineLoopNest(
       rewriter, loc, lbs, sizes, steps,
       [&](OpBuilder &builder, Location loc, ValueRange ivs) {
         SmallVector<Value, 4> indices;
@@ -392,14 +392,14 @@ public:
           indices.push_back(ivs[i]);
         auto ident = AffineMap::getMultiDimIdentityMap(sizes.size(),
                                                        op->getContext());
-        auto loadA = rewriter.create<AffineLoadOp>(loc, argA, ident, indices);
-        auto loadB = rewriter.create<AffineLoadOp>(loc, argB, ident, indices);
+        auto loadA = rewriter.create<affine::AffineLoadOp>(loc, argA, ident, indices);
+        auto loadB = rewriter.create<affine::AffineLoadOp>(loc, argB, ident, indices);
         auto binop = static_cast<const T*>(this)->emitBinaryOp(op, tensorType, rewriter, loadA, loadB);
-        rewriter.create<AffineStoreOp>(loc, binop, result, ident, indices);
+        rewriter.create<affine::AffineStoreOp>(loc, binop, result, ident, indices);
       });
 
     for (auto it = Block::iterator(op),ie=rewriter.getInsertionPoint(); it!=ie; ++it) {
-       if (auto afo = dyn_cast<AffineForOp>(it))
+       if (auto afo = dyn_cast<affine::AffineForOp>(it))
         afo->setAttr("affine_opt_label", StringAttr::get(op->getContext(), "xten.binary_op"));
     }
 
@@ -448,7 +448,7 @@ public:
   XTenToAffinePass(const XTenToAffinePass &pass){};
 
   void getDependentDialects(::mlir::DialectRegistry &registry) const override {  
-     registry.insert<AffineDialect>();
+     registry.insert<affine::AffineDialect>();
      registry.insert<memref::MemRefDialect>();
      registry.insert<Torch::TorchDialect,
                      TorchConversion::TorchConversionDialect>();
@@ -486,7 +486,7 @@ public:
 
     ConversionTarget target(*context);
 
-    target.addLegalDialect<AffineDialect, LLVM::LLVMDialect,
+    target.addLegalDialect<affine::AffineDialect, LLVM::LLVMDialect,
                            memref::MemRefDialect,
                            func::FuncDialect, scf::SCFDialect,
                            TorchConversion::TorchConversionDialect>();

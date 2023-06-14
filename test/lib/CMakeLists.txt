@@ -3,13 +3,6 @@
 # See https://llvm.org/LICENSE.txt for license information.
 # SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 #
-# (c) Copyright 2022 Advanced Micro Devices, Inc.
+# (c) Copyright 2023 Advanced Micro Devices, Inc.
 
-add_custom_target(XTenNNIncGen)
-
-add_subdirectory(Interfaces)
-
-add_subdirectory(IR)
-
-add_subdirectory(Transforms)
-
+add_subdirectory(Dialect)

@@ -39,12 +39,23 @@
 using namespace llvm;
 using namespace mlir;
 
+namespace amd::xten_nn::test {
+void registerTestSubgraphBuilder();
+}
+
+namespace amd::xten_nn::test {
+void registerTestPasses() {
+  registerTestSubgraphBuilder();
+}
+} // namespace amd::xten_nn::test
+
 int main(int argc, char **argv) {
   registerAllPasses();
   xilinx::xten::registerTransformPasses();
   xilinx::xten::registerConversionPasses();
   xilinx::xten::registerXTenPasses();
   amd::xten_nn::registerXTenNNPasses();
+  amd::xten_nn::test::registerTestPasses();
 
   DialectRegistry registry;
   registerAllDialects(registry);
@@ -53,7 +64,6 @@ int main(int argc, char **argv) {
                   torch::Torch::TorchDialect,
                   torch::TorchConversion::TorchConversionDialect>();
 
-  return failed(MlirOptMain(argc, argv, "MLIR modular optimizer driver\n",
-                            registry,
-                            /*preloadDialectsInContext=*/false));
+  return mlir::asMainReturnCode(
+      MlirOptMain(argc, argv, "MLIR modular optimizer driver\n", registry));
 }
