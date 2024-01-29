@@ -5,14 +5,20 @@
 #
 # (c) Copyright 2022 Advanced Micro Devices, Inc.
 
-set(LLVM_TARGET_DEFINITIONS XTenNNOps.td)
+set(LLVM_TARGET_DEFINITIONS XTenNNAttr.td)
+mlir_tablegen(XTenNNAttr.h.inc -gen-attrdef-decls)
+mlir_tablegen(XTenNNAttr.cpp.inc -gen-attrdef-defs)
+add_public_tablegen_target(XTenNNAttrGen)
+add_dependencies(XTenNNIncGen XTenNNAttrGen)
 
+set(LLVM_TARGET_DEFINITIONS XTenNNOps.td)
 mlir_tablegen(XTenNNBase.h.inc -gen-dialect-decls)
 mlir_tablegen(XTenNNBase.cpp.inc -gen-dialect-defs)
 mlir_tablegen(XTenNNOps.h.inc -gen-op-decls)
 mlir_tablegen(XTenNNOps.cpp.inc -gen-op-defs)
 
+add_mlir_doc(XTenNNOps XTenNN Dialects/ -gen-dialect-doc)
+
+
 add_public_tablegen_target(XTenNNDialectIncGen)
 add_dependencies(XTenNNIncGen XTenNNDialectIncGen)
-
-add_mlir_doc(XTenNNOps XTenNN Dialects/ -gen-dialect-doc)

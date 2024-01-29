@@ -8,11 +8,14 @@
 add_mlir_dialect_library(XTenNNDialect
   XTenNNBase.cpp
   XTenNNOps.cpp
+  XTenNNAttr.cpp
 
   DEPENDS
   XTenNNIncGen
+  XTenNNAttrGen
 
   LINK_LIBS PUBLIC
+  LLVMSupport
   MLIRIR
   MLIRPass
   MLIRTransforms

@@ -29,6 +29,11 @@ def XTenNN_Dialect : Dialect {
     private:
         void registerOps();
 
+        /// Register all dialect attributes.
+        void registerAttributes();
+    public:
+    void printAttribute(::mlir::Attribute attr,
+                        ::mlir::DialectAsmPrinter &printer) const override;
     }];
 
   let useDefaultTypePrinterParser = 0;

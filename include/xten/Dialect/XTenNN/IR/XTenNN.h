@@ -14,4 +14,5 @@
 
 #pragma once
 
+#include "xten/Dialect/XTenNN/IR/XTenNNAttr.h"
 #include "xten/Dialect/XTenNN/IR/XTenNNOps.h"
