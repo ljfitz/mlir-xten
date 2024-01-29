@@ -9,6 +9,7 @@ add_mlir_dialect_library(XTenNNTransforms
   Simplify.cpp
   CanonicalizePass.cpp
   QDQConcat.cpp
+  AnnotateMicrokernelTileSizes.cpp
 
   DEPENDS
   XTenNNIncGen

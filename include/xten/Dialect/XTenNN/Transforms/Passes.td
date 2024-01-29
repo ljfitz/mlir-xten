@@ -88,4 +88,19 @@ def XTenNNCanonicalizePass : Pass<"xtennn-canonicalize"> {
   ];
 }
 
+def AnnotateMicrokernelTileSizes : Pass<"annotate-microkernel-tile-sizes", "ModuleOp"> {
+  let summary = "A pass that annotates microkernel with tile_sizes";
+  let constructor = "amd::xten_nn::createAnnotateMicrokernelTileSizes()";
+  let description = [{
+    This pass annotates microkernels with a tile_size annotation.
+  }];
+  let options = [
+    Option<"tilingHeuristic", "tiling-heuristic", "amd::xten_nn::TilingHeuristic", /*default=*/"amd::xten_nn::TilingHeuristic::Auto", "Example option for tiling heuristic. 'auto' splits last dimension by 2. 'hard-coded' uses hard-coded value.",
+    [{::llvm::cl::values(
+      clEnumValN(amd::xten_nn::TilingHeuristic::Auto, "auto", "Use automatic tiling heuristic based on shapes"),
+      clEnumValN(amd::xten_nn::TilingHeuristic::HardCoded, "hard-coded", "Use Hardcoded values")
+    )}]>
+  ];
+}
+
 #endif // XTENNN_PASSES

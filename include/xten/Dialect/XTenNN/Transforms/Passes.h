@@ -14,8 +14,14 @@
 
 #pragma once
 
-#include "xten/Dialect/XTenNN/Transforms/Simplify.h"
 #include "xten/Dialect/XTenNN/Transforms/CanonicalizePass.h"
+#include "xten/Dialect/XTenNN/Transforms/Simplify.h"
+
+namespace amd::xten_nn {
+#define GEN_PASS_DECL_ANNOTATEMICROKERNELTILESIZES
+#include "xten/Dialect/XTenNN/Transforms/Passes.h.inc"
+std::unique_ptr<mlir::Pass> createAnnotateMicrokernelTileSizes();
+} // namespace amd::xten_nn
 
 namespace amd::xten_nn {
 #define GEN_PASS_REGISTRATION
